@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Anonimizador Legal-Tech - mefarias.com.ar</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Courier+Prime&family=Times+New+Roman&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mammoth.js (Lector Word/DOCX local) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- PDF.js (Lector PDF local) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        mono: ['Space Mono', 'monospace'],
+                        judicial: ['Times New Roman', 'Times', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #090d16;
+            background-image: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 60%), linear-gradient(180deg, rgba(9, 13, 22, 0.88) 0%, rgba(9, 13, 22, 0.96) 100%), url('cyber_legal_bg.jpg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            color: #f1f5f9;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.35);
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #2e1065; border-radius: 4px; border: 1px solid rgba(168, 85, 247, 0.3); }
+        ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+        @media screen { .print-only { display: none; } }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only {
+                display: block !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+                font-size: 12pt !important;
+                line-height: 2.0 !important;
+                padding: 2.54cm !important;
+            }
+            .print-only p { margin-bottom: 1.5rem !important; text-indent: 1.27cm !important; text-align: justify !important; }
+            .print-only h1, .print-only h2 { font-weight: bold !important; text-align: center !important; margin-bottom: 1.5rem !important; }
+            @page { size: A4; margin: 0; }
+        }
+        .term-chip {
+            transition: all 0.15s ease;
+        }
+        .term-chip:hover {
+            background: rgba(168, 85, 247, 0.25) !important;
+            border-color: rgba(168, 85, 247, 0.7) !important;
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col antialiased selection:bg-purple-600 selection:text-white">
+
+    <div id="printContainer" class="print-only"></div>
+
+    <div class="no-print flex-grow flex flex-col">
+        <!-- Header -->
+        <header class="border-b border-purple-500/30 bg-slate-950/85 sticky top-0 z-40 backdrop-blur-md shadow-[0_4px_25px_rgba(0,0,0,0.5)]">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-500 p-2.5 rounded-xl shadow-lg shadow-purple-500/30">
+                        <i class="fa-solid fa-shield-halved text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-outfit font-extrabold text-xl tracking-tight bg-gradient-to-r from-purple-300 via-purple-400 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
+                            ELENA ANONIMIZADOR
+                        </h1>
+                        <p class="text-xs text-purple-300/80 font-mono">v3.0.0 // mefarias.com.ar</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <a href="anonimizador_offline.html" download="anonimizador_offline_bunker.html" class="px-3.5 py-1.5 bg-slate-900 hover:bg-purple-950/60 border border-purple-500/40 text-purple-200 font-semibold text-xs rounded-xl shadow active:scale-95 transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download text-purple-400"></i>
+                        <span>Descargar Búnker Offline</span>
+                    </a>
+                    <button id="openManualBtn" class="px-3.5 py-1.5 bg-slate-900 border border-purple-500/40 hover:border-purple-400 hover:bg-slate-850 rounded-xl text-slate-300 hover:text-white text-xs font-semibold shadow transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-circle-question text-purple-400"></i>
+                        <span>Manual del Usuario</span>
+                    </button>
+                    <div class="hidden sm:flex items-center space-x-2 bg-purple-950/60 border border-purple-500/40 px-3 py-1.5 rounded-full text-purple-300 text-xs font-mono shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                        </span>
+                        <span>Procesamiento 100% Local (Ley 25.326)</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+            <!-- Banner -->
+            <div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-purple-500/40">
+                <div class="flex items-center space-x-3.5">
+                    <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-300 text-lg flex-shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-outfit font-bold text-sm text-slate-100 flex items-center gap-2">
+                            <span>Protección de Datos Personales & Secreción Profesional</span>
+                            <span class="px-2 py-0.5 rounded-full bg-purple-900/60 border border-purple-500/40 text-purple-300 text-[10px] font-mono">Ley 25.326</span>
+                        </h2>
+                        <p class="text-xs text-slate-300 mt-0.5">
+                            Los datos volcados o archivos cargados acá <strong>jamás se envían a ningún servidor externo</strong>. Todo el análisis, detección y reemplazo se ejecuta en la RAM local de tu dispositivo.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <button onclick="openConsultoriaModal()" class="px-3.5 py-1.5 bg-purple-950/80 hover:bg-purple-900 border border-purple-500/50 text-purple-200 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Consultoría Legal-Tech</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advertencia: qué detecta y qué no -->
+            <div class="glass-panel rounded-2xl p-4 border border-amber-500/40 bg-amber-950/10">
+                <p class="text-xs text-amber-200 leading-relaxed flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+                    <span><strong>Lo que se detecta solo:</strong> DNI, CUIL/CUIT, CBU, email, teléfono, patente y montos en pesos. <strong>Lo que NO se detecta solo</strong> (requiere revisión manual): nombres de personas y domicilios. Usá "Sugerencias detectadas" abajo para encontrarlos rápido, pero la responsabilidad de confirmar que no quedó ningún dato identificable es tuya antes de enviar el texto a una IA externa.</span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Columna Izquierda -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="glass-panel rounded-3xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-purple-500/30 pb-3">
+                            <h3 class="font-outfit font-bold text-sm text-purple-300 flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-purple-400"></i>
+                                <span>Términos a Forzar</span>
+                            </h3>
+                            <span class="text-[10px] font-mono text-slate-400">Nombres / domicilios</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Agregá cada nombre o domicilio real, elegí su rol procesal, y se reemplaza con el token correspondiente:
+                        </p>
+
+                        <div id="termsContainer" class="space-y-2.5"></div>
+
+                        <button id="addTermBtn" type="button" class="w-full py-2 px-3 bg-slate-900/80 hover:bg-slate-800 border border-purple-500/30 border-dashed text-purple-300 text-xs font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Agregar término</span>
+                        </button>
+
+                        <div id="suggestionsBox" class="hidden space-y-2 pt-2 border-t border-purple-500/20">
+                            <p class="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Sugerencias detectadas</p>
+                            <div id="suggestionsChips" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <button id="anonymizeBtn" class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-2xl shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)] active:scale-95 transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                            <span>ANONIMIZAR ESCRITO AHORA</span>
+                        </button>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-5 space-y-3">
+                        <h4 class="font-outfit font-bold text-xs text-purple-300 uppercase tracking-wider">Categorías Automáticas</h4>
+                        <div class="space-y-2 text-xs text-slate-300">
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-purple-500/20">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-id-card text-purple-400"></i> DNI</span>
+                                <span class="font-mono text-[10px] text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full">[DNI_1]</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-purple-500/20">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-building-columns text-purple-400"></i> CUIL/CUIT & CBU</span>
+                                <span class="font-mono text-[10px] text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full">[CUIL_1]</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-purple-500/20">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-phone text-purple-400"></i> Teléfonos & Mails</span>
+                                <span class="font-mono text-[10px] text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full">[EMAIL_1]</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-purple-500/20">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-sack-dollar text-purple-400"></i> Montos</span>
+                                <span class="font-mono text-[10px] text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full">[MONTO_1]</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/80 border border-purple-500/20">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-gavel text-purple-400"></i> Juzgado / Tribunal</span>
+                                <span class="font-mono text-[10px] text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full">[JUZGADO_1]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="glass-panel rounded-3xl p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-500/30 pb-3">
+                            <h3 class="font-outfit font-bold text-sm text-purple-300 flex items-center gap-2">
+                                <i class="fa-solid fa-file-arrow-up text-purple-400"></i>
+                                <span>Cargar Documento (.docx Word o .pdf)</span>
+                            </h3>
+                            <span class="text-[10px] font-mono text-purple-300/80 bg-purple-950/60 px-2.5 py-0.5 rounded-full border border-purple-500/30">Extracción Local</span>
+                        </div>
+
+                        <div class="border-2 border-dashed border-purple-500/40 hover:border-purple-400 rounded-2xl p-6 text-center bg-slate-900/40 transition-all cursor-pointer relative group" id="dropZone">
+                            <input type="file" id="fileInput" accept=".docx,.pdf,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="space-y-2 group-hover:scale-105 transition-transform">
+                                <div class="w-12 h-12 mx-auto rounded-2xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-300 text-2xl shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-200">Arrastrá tu escrito (.docx / .pdf) o hacé clic para seleccionar</p>
+                                <p id="fileStatus" class="text-[11px] text-slate-400 font-mono">Mammoth.js & PDF.js extraen el texto directamente en tu memoria RAM local</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-purple-500/30 pb-3">
+                            <h3 class="font-outfit font-bold text-sm text-purple-300 flex items-center gap-2">
+                                <i class="fa-solid fa-pen-to-square text-purple-400"></i>
+                                <span>Texto del Escrito Judicial</span>
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <button id="copyBtn" type="button" class="px-3 py-1 bg-slate-900 hover:bg-purple-950 border border-purple-500/40 text-purple-300 text-xs font-semibold rounded-lg transition-all flex items-center gap-1">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span>Copiar</span>
+                                </button>
+                                <button id="clearBtn" type="button" class="px-3 py-1 bg-slate-900 hover:bg-rose-950 border border-rose-800/60 text-rose-300 text-xs font-semibold rounded-lg transition-all flex items-center gap-1">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <span>Limpiar</span>
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="sourceText" rows="14" class="w-full p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 text-slate-100 text-xs font-mono leading-relaxed focus:outline-none focus:border-purple-400 focus:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all resize-y" placeholder="Pegá aquí el texto del escrito judicial o arrastrá el archivo arriba..."></textarea>
+
+                        <div id="mappingsBox" class="hidden space-y-2 pt-3 border-t border-purple-500/20">
+                            <p class="text-[11px] font-mono text-slate-400 uppercase tracking-wide">Tabla de equivalencias (esta sesión)</p>
+                            <div class="max-h-40 overflow-y-auto rounded-xl border border-purple-500/20">
+                                <table class="w-full text-xs">
+                                    <tbody id="mappingsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-3xl p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-purple-500/30 pb-3">
+                            <h3 class="font-outfit font-bold text-sm text-purple-300 flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-rotate-left text-purple-400"></i>
+                                <span>Restituir Nombres Reales (Tras procesar en IA)</span>
+                            </h3>
+                            <span class="text-[10px] font-mono text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-500/30">Modo Reversible</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Cuando tu modelo de IA (ChatGPT, Claude, Ollama) devuelva la respuesta con los tokens, pegala aquí para restaurar los valores reales — se restituyen con la capitalización original, no en minúsculas:
+                        </p>
+                        <textarea id="restoreText" rows="6" class="w-full p-3.5 rounded-2xl bg-slate-950/90 border border-purple-500/40 text-slate-100 text-xs font-mono leading-relaxed focus:outline-none focus:border-purple-400 transition-all" placeholder="Pegá aquí la respuesta producida por la IA con los tokens..."></textarea>
+                        <button id="restoreBtn" type="button" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-rotate text-xs"></i>
+                            <span>Restituir Nombres Reales</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="border-t border-purple-500/30 bg-slate-950/90 text-slate-400 text-xs py-8 mt-12 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-300 text-base shadow-[0_0_10px_rgba(168,85,247,0.3)]">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <span class="font-outfit font-bold text-slate-100 text-base tracking-tight">mefarias.com.ar</span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Plataforma de desarrollo de herramientas Legal-Tech, seguridad y privacidad de datos de <strong>María Elisa Farías</strong>.
+                    </p>
+                    <p class="text-[11px] text-purple-300/80 font-mono">© 2026 mefarias.com.ar // Todos los derechos reservados.</p>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-outfit font-bold text-xs text-purple-300 uppercase tracking-wider">Marco Normativo & Privacidad</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><button onclick="openLegalModal('ley25326')" class="hover:text-purple-300 transition-colors flex items-center gap-1.5 text-left"><i class="fa-solid fa-scale-balanced text-purple-400 text-[10px]"></i><span>Ley 25.326 de Protección de Datos Personales</span></button></li>
+                        <li><button onclick="openLegalModal('privacidad')" class="hover:text-purple-300 transition-colors flex items-center gap-1.5 text-left"><i class="fa-solid fa-user-lock text-purple-400 text-[10px]"></i><span>Política de Privacidad Zero-Knowledge</span></button></li>
+                        <li><button onclick="openLegalModal('baja')" class="hover:text-purple-300 transition-colors flex items-center gap-1.5 text-left"><i class="fa-solid fa-eraser text-purple-400 text-[10px]"></i><span>Derecho de Supresión & Cancelación</span></button></li>
+                    </ul>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="font-outfit font-bold text-xs text-purple-300 uppercase tracking-wider">Accesos & Canales Oficiales</h4>
+                    <div class="space-y-2 text-xs">
+                        <button onclick="openConsultoriaModal()" class="w-full p-2.5 rounded-xl bg-slate-900/90 border border-purple-500/30 hover:border-purple-400 text-slate-200 hover:text-white flex items-center justify-between transition-all group">
+                            <span class="flex items-center gap-2"><i class="fa-brands fa-linkedin text-blue-400"></i><span>Contacto & Consultoría</span></span>
+                            <i class="fa-solid fa-chevron-right text-[10px] text-purple-400 group-hover:translate-x-0.5 transition-transform"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL LEGALES / CONSULTORÍA -->
+    <div id="legalModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden transition-all duration-300">
+        <div class="glass-panel w-full max-w-2xl rounded-3xl overflow-hidden flex flex-col max-h-[85vh] border border-purple-500/40 shadow-2xl">
+            <div class="border-b border-purple-500/30 bg-slate-950/95 px-6 py-4 flex items-center justify-between">
+                <h3 id="legalModalTitle" class="font-outfit font-bold text-base text-purple-300">Aviso Legal</h3>
+                <button onclick="closeLegalModal()" class="text-slate-400 hover:text-rose-400 transition-colors p-1.5 hover:bg-slate-900 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="legalModalBody" class="p-6 space-y-4 overflow-y-auto text-xs text-slate-300 leading-relaxed font-sans"></div>
+            <div class="border-t border-purple-500/30 bg-slate-950/95 px-6 py-3 flex justify-end">
+                <button onclick="closeLegalModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 text-xs font-semibold rounded-xl">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Manual de Usuario -->
+    <div id="manualModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden transition-all duration-300">
+        <div class="glass-panel w-full max-w-3xl rounded-3xl overflow-hidden flex flex-col max-h-[85vh] border border-purple-500/40 shadow-2xl">
+            <div class="border-b border-purple-500/30 bg-slate-950/95 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="bg-purple-600/20 p-2 rounded-xl text-purple-300 border border-purple-500/40"><i class="fa-solid fa-book-open text-base"></i></div>
+                    <h3 class="font-outfit font-bold text-lg text-slate-100">Manual del Usuario</h3>
+                </div>
+                <button id="closeManualModalXBtn" class="text-slate-400 hover:text-rose-400 transition-colors p-1.5 hover:bg-slate-900 rounded-lg"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-5 overflow-y-auto text-xs text-slate-300 leading-relaxed">
+                <div>
+                    <h4 class="font-outfit font-semibold text-purple-300 text-sm mb-1">1. Principio de Funcionamiento Local</h4>
+                    <p>Esta aplicación no envía texto a servidores externos. Todo el análisis ocurre en la memoria RAM del navegador.</p>
+                </div>
+                <hr class="border-purple-500/20">
+                <div>
+                    <h4 class="font-outfit font-semibold text-purple-300 text-sm mb-1">2. Nombres y domicilios no se detectan solos</h4>
+                    <p>Son los dos tipos de dato más sensibles y los más difíciles de reconocer automáticamente sin errores. Usá "Términos a Forzar" con el rol correcto (Actor, Demandado, Testigo, Domicilio) para cada uno, o clickeá una sugerencia de la lista "Sugerencias detectadas" para agregarla en un paso.</p>
+                </div>
+                <hr class="border-purple-500/20">
+                <div>
+                    <h4 class="font-outfit font-semibold text-purple-300 text-sm mb-1">3. Restitución de Nombres Reales</h4>
+                    <p>Una vez procesada la respuesta en tu IA, pegá el texto en la casilla de abajo y presioná <strong>Restituir Nombres Reales</strong>. La capitalización original se mantiene.</p>
+                </div>
+            </div>
+            <div class="border-t border-purple-500/30 bg-slate-950/95 px-6 py-3 flex justify-end">
+                <button id="closeManualModalBtn" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 text-xs font-semibold rounded-xl">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    'use strict';
+
+    // ============================================================
+    // MOTOR DE ANONIMIZACIÓN
+    // ============================================================
+
+    /** Roles procesales disponibles para los términos forzados manualmente. */
+    const ROLES = [
+        { value: 'ACTOR', label: 'Actor' },
+        { value: 'DEMANDADO', label: 'Demandado' },
+        { value: 'TESTIGO', label: 'Testigo' },
+        { value: 'TERCERO', label: 'Tercero' },
+        { value: 'DOMICILIO', label: 'Domicilio' },
+        { value: 'PERSONALIZADO', label: 'Otro' }
+    ];
+
+    /** 3 letras + 3 dígitos coincide con siglas normativas comunes: se excluyen del regex de PATENTE. */
+    const PATENTE_BLOCKLIST = new Set(['ART','CAP','LEY','INC','PTO','FS','NRO','ETC','SRA','SRES','DRA','DRES','ORD','RES','DTO','CIT','PAG','FOJ','EXP','VER','CFR']);
+
+    /** Palabras que, si empiezan una secuencia Título-Caso, casi seguro no son un nombre propio. */
+    const NAME_STOPWORDS = new Set(['El','La','Los','Las','Un','Una','Unos','Unas','Que','Por','Para','Con','Su','Sus','En','De','Del','Al','Y','O','U','Ante','Sobre','Según','Este','Esta','Estos','Estas','Dicho','Dicha']);
+
+    const regexPatterns = {
+        // CUIL/CUIT: XX-XXXXXXXX-X, con o sin separadores (guiones, puntos, barras)
+        CUIL: /\b(20|23|24|27|30|33|34)[-./ ]?\d{8}[-./ ]?\d\b/g,
+        // CBU: 22 dígitos
+        CBU: /\b\d{22}\b/g,
+        // Email estándar
+        EMAIL: /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g,
+        // Teléfonos AR: +54 / 9 / 0 troncal, característica con o sin paréntesis, 15 de móvil.
+        // La cola SIEMPRE exige separación estructural: nunca matchea 7-8 dígitos corridos
+        // (si lo hiciera se comería los DNI, que se procesan después).
+        TELEFONO: /(?:\+?\s?54[\s.\-]?)?(?:9[\s.\-]?)?(?:\(\s?0?\d{2,4}\s?\)|\b0?\d{2,4})[\s.\-]?(?:15[\s.\-]?\d{3,4}[\s.\-]?\d{4}|\d{3}[\s.\-]\d{6}|(?:15[\s.\-]?)?\d{3,4}[\s.\-]?\d{4})\b|\b\d{4}[\s.\-]\d{4}\b/g,
+        // Patente (formato viejo ABC123, formato nuevo AB123CD) - se filtran falsos positivos de siglas legales en processCategory()
+        PATENTE: /\b[A-Za-z]{3}[- ]?\d{3}\b|\b[A-Za-z]{2}[- ]?\d{3}[- ]?[A-Za-z]{2}\b/g,
+        // Montos: con símbolo, o con la moneda escrita antes o después del número.
+        // Corre ANTES que DNI para que "pesos 1.500.000" no se etiquete como documento.
+        MONTO: /(?:\$|ARS|U\$S|USD)\s?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?\b|\b(?:pesos|d[óo]lares|euros)\s+\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{2})?\b|\b\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{2})?\s*(?:pesos|d[óo]lares|euros)\b/gi,
+        // Juzgado/Tribunal/Cámara/Fiscalía + su identificación numérica si la tiene
+        JUZGADO: /\b(?:Juzgado(?:\s+Nacional|\s+Federal|\s+de\s+Paz|\s+en\s+lo\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?|Tribunal(?:\s+Oral)?|C[áa]mara(?:\s+de\s+Apelaciones)?|Fiscal[íi]a)\b(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,3}(?:\s+[Nn]?[°ºroN.]{0,4}\s*\d{1,4})?/g,
+        // DNI: con puntos de mil, o 7-8 dígitos sueltos, EXCEPTO precedidos por un marcador
+        // de expediente/norma. El marcador admite un "Nº"/"nro." intermedio, de modo que
+        // "Expediente Nº 45678901" se ignora pero "DNI Nº 30123456" SÍ se detecta
+        // (el "Nº" solo no es marcador: es justamente lo que antecede a un DNI real).
+        DNI: /\b\d{1,2}(?:\.\d{3}){2}\b|(?<!\b(?:expte\.?|expediente|art\.?|art[íi]culo|fs\.?|fojas|causa|inc\.?|ley|cap\.?|res\.?|dto\.?|acta|folio|matr[íi]cula|cuit|cuil)\s{0,3}(?:n[°ºro]{0,3}\.?)?\s{0,3})\b\d{7,8}\b(?!\s*(?:pesos|usd|d[óo]lares))/gi
+    };
+
+    let mappings = {};       // dedupKey -> { tag, original, category }
+    let entityCounters = {};
+
+    function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function getAccentInsensitivePattern(term) {
+        return escapeRegExp(term)
+            .replace(/[aáàä]/gi, '[aáàä]')
+            .replace(/[eéèë]/gi, '[eéèë]')
+            .replace(/[iíìï]/gi, '[iíìï]')
+            .replace(/[oóòö]/gi, '[oóòö]')
+            .replace(/[uúùü]/gi, '[uúùü]');
+    }
+
+    function clearState() {
+        mappings = {};
+        entityCounters = {};
+    }
+
+    /** Registra un valor bajo una categoría y devuelve su token. Preserva la capitalización ORIGINAL para la restitución. */
+    function getReplacement(category, originalValue) {
+        const clean = originalValue.trim();
+        const dedupKey = `${category}::${clean.toLowerCase()}`;
+        if (!(dedupKey in mappings)) {
+            entityCounters[category] = (entityCounters[category] || 0) + 1;
+            mappings[dedupKey] = { tag: `[${category}_${entityCounters[category]}]`, original: clean, category };
+        }
+        return mappings[dedupKey].tag;
+    }
+
+    /** Detecta candidatos a nombre propio: secuencias Título-Caso de 2 a 4 palabras. Es un ASISTENTE, no reemplaza solo. */
+    function suggestNameCandidates(text) {
+        const regex = /\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){1,3})\b/g;
+        const counts = new Map();
+        let m;
+        while ((m = regex.exec(text)) !== null) {
+            const candidate = m[1];
+            const firstWord = candidate.split(' ')[0];
+            if (NAME_STOPWORDS.has(firstWord)) continue;
+            counts.set(candidate, (counts.get(candidate) || 0) + 1);
+        }
+        return Array.from(counts.keys()).slice(0, 15);
+    }
+
+    function processCategory(text, category, regex) {
+        const matches = text.match(regex) || [];
+        const uniqueMatches = Array.from(new Set(matches));
+        let result = text;
+        uniqueMatches.forEach(match => {
+            if (category === 'DNI') {
+                const digits = match.replace(/\./g, '');
+                if (digits.length !== 7 && digits.length !== 8) return;
+            }
+            if (category === 'PATENTE') {
+                const prefix = match.slice(0, 3).replace(/[^A-Za-z]/g, '').toUpperCase();
+                if (PATENTE_BLOCKLIST.has(prefix)) return;
+            }
+            const tag = getReplacement(category, match);
+            result = result.replace(new RegExp(escapeRegExp(match), 'g'), tag);
+        });
+        return result;
+    }
+
+    /** Detecta tokens [CATEGORIA_n] ya presentes en el texto de entrada. */
+    function detectExistingTokens(text) {
+        return Array.from(new Set(text.match(/\[[A-ZÁÉÍÓÚÑ_]+_\d+\]/g) || []));
+    }
+
+    function anonymizeText(text, customTerms) {
+        if (!text) return '';
+        clearState();
+        let result = text;
+
+        // 1. Términos forzados manualmente (prioridad, para no pisarlos con regex genérico).
+        //    Se ordenan por longitud DESCENDENTE: si están cargados "Juan Pérez" y
+        //    "Juan Pérez Gómez", el más largo debe consumirse primero. En orden de fila,
+        //    el corto partía al largo y dejaba el apellido restante en claro.
+        const orderedTerms = [...customTerms]
+            .filter(t => t && t.text && t.text.trim())
+            .sort((a, b) => b.text.trim().length - a.text.trim().length);
+
+        orderedTerms.forEach(({ text: term, role }) => {
+            if (!term.trim()) return;
+            const pattern = getAccentInsensitivePattern(term);
+            const boundary = `(^|[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])(${pattern})(?![a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])`;
+            const regex = new RegExp(boundary, 'gi');
+            const found = new Set();
+            let m;
+            regex.lastIndex = 0;
+            while ((m = regex.exec(result)) !== null) found.add(m[2]);
+            found.forEach(matchedValue => {
+                const tag = getReplacement(role, matchedValue);
+                const repRegex = new RegExp(`(^|[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])(${escapeRegExp(matchedValue)})(?![a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])`, 'gi');
+                result = result.replace(repRegex, (match, p1) => p1 + tag);
+            });
+        });
+
+        // 2. Categorías automáticas por regex
+        for (const [category, regex] of Object.entries(regexPatterns)) {
+            result = processCategory(result, category, regex);
+        }
+
+        return result;
+    }
+
+    // ============================================================
+    // UI: Términos a Forzar (dinámico, con rol)
+    // ============================================================
+
+    let termRowCount = 0;
+
+    function addTermRow(prefillText = '', prefillRole = 'PERSONALIZADO') {
+        termRowCount++;
+        const id = `term-${termRowCount}`;
+        const row = document.createElement('div');
+        row.className = 'flex gap-1.5 items-center';
+        row.dataset.rowId = id;
+
+        const roleSelect = document.createElement('select');
+        roleSelect.className = 'px-2 py-2 rounded-xl bg-slate-900/90 border border-purple-500/30 text-slate-100 text-[11px] focus:outline-none focus:border-purple-400';
+        ROLES.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.value;
+            opt.textContent = r.label;
+            if (r.value === prefillRole) opt.selected = true;
+            roleSelect.appendChild(opt);
+        });
+
+        const textInput = document.createElement('input');
+        textInput.type = 'text';
+        textInput.placeholder = 'Ej: Juan Pérez...';
+        textInput.value = prefillText;
+        textInput.className = 'flex-grow px-3 py-2 rounded-xl bg-slate-900/90 border border-purple-500/30 text-slate-100 text-xs focus:outline-none focus:border-purple-400 transition-all';
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'px-2 py-2 text-rose-400 hover:text-rose-300';
+        removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        removeBtn.onclick = () => row.remove();
+
+        row.appendChild(roleSelect);
+        row.appendChild(textInput);
+        row.appendChild(removeBtn);
+        document.getElementById('termsContainer').appendChild(row);
+        return textInput;
+    }
+
+    function getCustomTerms() {
+        return Array.from(document.getElementById('termsContainer').children).map(row => ({
+            text: row.querySelector('input').value,
+            role: row.querySelector('select').value
+        })).filter(t => t.text.trim());
+    }
+
+    function renderSuggestions(candidates) {
+        const box = document.getElementById('suggestionsBox');
+        const chips = document.getElementById('suggestionsChips');
+        chips.innerHTML = '';
+        if (candidates.length === 0) {
+            box.classList.add('hidden');
+            return;
+        }
+        box.classList.remove('hidden');
+        candidates.forEach(candidate => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'term-chip px-2.5 py-1 rounded-full bg-slate-900/80 border border-purple-500/30 text-purple-200 text-[11px] transition-all';
+            chip.textContent = candidate;
+            chip.title = 'Clic para agregar como término a forzar';
+            chip.onclick = () => {
+                addTermRow(candidate, 'PERSONALIZADO');
+                chip.remove();
+                if (chips.children.length === 0) box.classList.add('hidden');
+            };
+            chips.appendChild(chip);
+        });
+    }
+
+    function updateMappingsTable() {
+        const tbody = document.getElementById('mappingsTableBody');
+        const box = document.getElementById('mappingsBox');
+        tbody.innerHTML = '';
+        const keys = Object.keys(mappings).sort();
+        if (keys.length === 0) {
+            box.classList.add('hidden');
+            return;
+        }
+        box.classList.remove('hidden');
+        keys.forEach(key => {
+            const { tag, original } = mappings[key];
+            const row = document.createElement('tr');
+            row.className = 'border-b border-slate-900';
+            const tdTag = document.createElement('td');
+            tdTag.className = 'py-1.5 px-3 font-mono text-purple-300 font-semibold';
+            tdTag.textContent = tag;
+            const tdOrig = document.createElement('td');
+            tdOrig.className = 'py-1.5 px-3 font-mono text-slate-400 select-all';
+            tdOrig.textContent = original;
+            row.appendChild(tdTag);
+            row.appendChild(tdOrig);
+            tbody.appendChild(row);
+        });
+    }
+
+    // ============================================================
+    // Eventos principales
+    // ============================================================
+
+    document.getElementById('addTermBtn').addEventListener('click', () => addTermRow());
+    addTermRow();
+    addTermRow();
+    addTermRow();
+
+    document.getElementById('anonymizeBtn').addEventListener('click', () => {
+        const source = document.getElementById('sourceText').value;
+        if (!source.trim()) {
+            alert('Por favor, ingresá o cargá un escrito judicial para anonimizar.');
+            return;
+        }
+        // Guarda de integridad: si el texto YA trae tokens, re-anonimizar reinicia los
+        // contadores y un token viejo (persona A) terminaría restituido con el dato de
+        // otra persona (persona B). Se aborta antes de producir esa contaminación.
+        const existing = detectExistingTokens(source);
+        if (existing.length > 0) {
+            alert(
+                'ATENCIÓN: el texto ya contiene ' + existing.length + ' token(s) de una anonimización previa ' +
+                '(' + existing.slice(0, 4).join(', ') + (existing.length > 4 ? '…' : '') + ').\n\n' +
+                'Volver a anonimizar reinicia la numeración y esos tokens quedarían apuntando a datos ' +
+                'de OTRA persona al restituir.\n\n' +
+                'Pegá el escrito original sin anonimizar, o borrá los tokens antes de continuar.'
+            );
+            return;
+        }
+
+        const customTerms = getCustomTerms();
+        const result = anonymizeText(source, customTerms);
+        document.getElementById('sourceText').value = result;
+        updateMappingsTable();
+        renderSuggestions(suggestNameCandidates(result));
+        alert('Escrito anonimizado. Revisá la tabla de equivalencias y las sugerencias detectadas antes de enviarlo a una IA externa.');
+    });
+
+    document.getElementById('restoreBtn').addEventListener('click', () => {
+        let text = document.getElementById('restoreText').value;
+        if (!text.trim()) {
+            alert('Ingresá el texto procesado por la IA para restituir los datos.');
+            return;
+        }
+        if (Object.keys(mappings).length === 0) {
+            alert('No hay ningún mapeo de seudonimización guardado en esta sesión.');
+            return;
+        }
+        Object.values(mappings).forEach(({ tag, original }) => {
+            text = text.split(tag).join(original);
+        });
+        document.getElementById('restoreText').value = text;
+        alert('Datos reales restituidos con la capitalización original.');
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+        const txt = document.getElementById('sourceText').value;
+        if (txt) {
+            navigator.clipboard.writeText(txt);
+            alert('Texto copiado al portapapeles.');
+        }
+    });
+
+    /**
+     * Borrado real. Ocultar el panel no alcanzaba: las filas con los datos reales seguían
+     * en el DOM (recuperables con inspeccionar-elemento) y el mapeo seguía vivo en memoria,
+     * de modo que se podía restituir el caso anterior después de "limpiar".
+     */
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        if (Object.keys(mappings).length > 0 &&
+            !confirm('Esto borra el escrito, la tabla de equivalencias y el mapeo en memoria. ' +
+                     'Después de confirmar NO vas a poder restituir los datos de este caso. ¿Continuar?')) {
+            return;
+        }
+        clearState();                                     // vacía mappings y contadores en RAM
+        document.getElementById('sourceText').value = '';
+        document.getElementById('restoreText').value = '';
+        document.getElementById('mappingsTableBody').innerHTML = '';   // saca la PII del DOM
+        document.getElementById('suggestionsChips').innerHTML = '';
+        document.getElementById('mappingsBox').classList.add('hidden');
+        document.getElementById('suggestionsBox').classList.add('hidden');
+    });
+
+    // ============================================================
+    // Carga de archivos (.docx, .pdf, .txt) — extracción secuencial y ordenada
+    // ============================================================
+
+    if (window.pdfjsLib) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    }
+
+    async function extractTextFromPDF(arrayBuffer) {
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+        }
+        return fullText;
+    }
+
+    document.getElementById('fileInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const status = document.getElementById('fileStatus');
+        const sourceText = document.getElementById('sourceText');
+
+        try {
+            if (file.name.endsWith('.docx')) {
+                status.textContent = 'Extrayendo texto del .docx...';
+                const arrayBuffer = await file.arrayBuffer();
+                const res = await mammoth.extractRawText({ arrayBuffer });
+                sourceText.value = res.value;
+            } else if (file.name.endsWith('.pdf')) {
+                status.textContent = 'Extrayendo texto del PDF (puede tardar según el tamaño)...';
+                const arrayBuffer = await file.arrayBuffer();
+                sourceText.value = await extractTextFromPDF(arrayBuffer);
+            } else {
+                sourceText.value = await file.text();
+            }
+            status.textContent = `Listo: ${file.name} (${sourceText.value.length} caracteres extraídos)`;
+        } catch (err) {
+            status.textContent = 'Mammoth.js & PDF.js extraen el texto directamente en tu memoria RAM local';
+            alert('Error al extraer el archivo: ' + err.message);
+        }
+    });
+
+    // ============================================================
+    // Modales de Legales / Manual / Consultoría
+    // ============================================================
+
+    const legalContents = {
+        ley25326: {
+            title: '⚖️ Cumplimiento Ley 25.326 de Protección de Datos Personales',
+            html: `<div class="space-y-3">
+                <p>Esta aplicación web ha sido diseñada bajo el paradigma de <strong>Privacy by Design</strong> y <strong>Zero-Knowledge Architecture</strong>.</p>
+                <ul class="list-disc pl-5 space-y-1 text-slate-300">
+                    <li>El procesamiento de datos se realiza en la memoria RAM del cliente.</li>
+                    <li>No existe almacenamiento ni envío de documentos a servidores externos.</li>
+                    <li>Nombres y domicilios requieren confirmación manual — no se auto-detectan con certeza suficiente.</li>
+                </ul>
+            </div>`
+        },
+        privacidad: {
+            title: '🔒 Política de Privacidad & Arquitectura Desconectada',
+            html: `<div class="space-y-3">
+                <p>Garantizamos que el 100% de la información procesada nunca abandona tu dispositivo. Podés auditar el código fuente del navegador para confirmarlo.</p>
+            </div>`
+        },
+        baja: {
+            title: '🗑️ Derecho de Supresión (Ley 25.326)',
+            html: `<div class="space-y-3">
+                <p>Al no almacenar ni conservar registros de datos personales, tu derecho de supresión es efectivo de forma inmediata al cerrar la pestaña o limpiar el editor.</p>
+            </div>`
+        }
+    };
+
+    function openLegalModal(key) {
+        const content = legalContents[key];
+        if (!content) return;
+        document.getElementById('legalModalTitle').innerText = content.title;
+        document.getElementById('legalModalBody').innerHTML = content.html;
+        document.getElementById('legalModal').classList.remove('hidden');
+    }
+    function closeLegalModal() {
+        document.getElementById('legalModal').classList.add('hidden');
+    }
+
+    function openConsultoriaModal() {
+        document.getElementById('legalModalTitle').innerText = '💬 Consultoría, Auditoría & Canales Directos';
+        document.getElementById('legalModalBody').innerHTML = `
+            <div class="space-y-5">
+                <p class="text-slate-300 text-xs leading-relaxed">Asesoramiento especializado en IA, gobernanza de datos personales (<strong>Ley 25.326</strong>) y automatización de procesos.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a href="https://www.linkedin.com/in/mar%C3%ADa-elisa-far%C3%ADas-6395b22b6/" target="_blank" rel="noopener noreferrer" class="p-3.5 rounded-2xl bg-slate-900/90 hover:bg-purple-950/60 border border-purple-500/40 text-slate-100 flex items-center gap-3 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl"><i class="fa-brands fa-linkedin-in"></i></div>
+                        <div><span class="block font-semibold text-xs text-slate-100">LinkedIn</span><span class="text-[11px] text-slate-400">Perfil Profesional</span></div>
+                    </a>
+                    <a href="mailto:contacto@mefarias.com.ar?subject=Consulta%20Servicios%20Legal-Tech" class="p-3.5 rounded-2xl bg-slate-900/90 hover:bg-purple-950/60 border border-purple-500/40 text-slate-100 flex items-center gap-3 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl"><i class="fa-solid fa-envelope"></i></div>
+                        <div><span class="block font-semibold text-xs text-slate-100">Email Oficial</span><span class="text-[11px] text-slate-400">contacto@mefarias.com.ar</span></div>
+                    </a>
+                    <a href="https://wa.me/?text=Hola%20Maru,%20quisiera%20consultar%20por%20servicios%20de%20consultor%C3%ADa%20Legal-Tech" target="_blank" rel="noopener noreferrer" class="p-3.5 rounded-2xl bg-slate-900/90 hover:bg-purple-950/60 border border-purple-500/40 text-slate-100 flex items-center gap-3 transition-all group">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl"><i class="fa-brands fa-whatsapp"></i></div>
+                        <div><span class="block font-semibold text-xs text-slate-100">WhatsApp</span><span class="text-[11px] text-slate-400">Consulta Directa</span></div>
+                    </a>
+                </div>
+            </div>`;
+        document.getElementById('legalModal').classList.remove('hidden');
+    }
+
+    document.getElementById('openManualBtn').addEventListener('click', () => document.getElementById('manualModal').classList.remove('hidden'));
+    document.getElementById('closeManualModalBtn').addEventListener('click', () => document.getElementById('manualModal').classList.add('hidden'));
+    document.getElementById('closeManualModalXBtn').addEventListener('click', () => document.getElementById('manualModal').classList.add('hidden'));
+    </script>
+</body>
+</html>
