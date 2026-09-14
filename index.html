@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🛡️ Anonimizador Legal-Tech - mefarias.com.ar</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>" />
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Courier+Prime&family=Times+New+Roman&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuentes Locales (Offline & Zero-Knowledge) -->
+    <link rel="stylesheet" href="/vendor/fonts/fonts.css">
+    <!-- FontAwesome Local -->
+    <link rel="stylesheet" href="/vendor/fontawesome/all.min.css">
+    <!-- Tailwind CSS Compilado Local -->
+    <link rel="stylesheet" href="/vendor/tailwind.min.css">
     <!-- Mammoth.js (Lector Word/DOCX local) -->
     <script src="/vendor/mammoth-1.6.0/mammoth.browser.min.js"></script>
     <!-- PDF.js (Lector PDF local) -->
@@ -21,20 +21,7 @@
         }
     </script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        outfit: ['Outfit', 'sans-serif'],
-                        mono: ['Space Mono', 'monospace'],
-                        judicial: ['Times New Roman', 'Times', 'serif']
-                    }
-                }
-            }
-        }
-    </script>
+    
 
     <style>
         body {
