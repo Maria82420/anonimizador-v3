@@ -12,9 +12,14 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Mammoth.js (Lector Word/DOCX local) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="/vendor/mammoth-1.6.0/mammoth.browser.min.js"></script>
     <!-- PDF.js (Lector PDF local) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="/vendor/pdfjs-3.11.174/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs-3.11.174/pdf.worker.min.js';
+        }
+    </script>
 
     <script>
         tailwind.config = {
@@ -390,29 +395,28 @@
     /** Palabras que, si empiezan una secuencia Título-Caso, casi seguro no son un nombre propio. */
     const NAME_STOPWORDS = new Set(['El','La','Los','Las','Un','Una','Unos','Unas','Que','Por','Para','Con','Su','Sus','En','De','Del','Al','Y','O','U','Ante','Sobre','Según','Este','Esta','Estos','Estas','Dicho','Dicha']);
 
+    const S_INLINE = '[-–—\\u2212\\u00AD.\\/ \\u00A0\\u2009\\u202F]';
+    const SEP_BOUNDED = `(?:${S_INLINE}|\\r?\\n){0,2}`;
+
     const regexPatterns = {
-        // CUIL/CUIT: XX-XXXXXXXX-X, con o sin separadores (guiones, puntos, barras)
-        CUIL: /\b(20|23|24|27|30|33|34)[-./ ]?\d{8}[-./ ]?\d\b/g,
-        // CBU: 22 dígitos
-        CBU: /\b\d{22}\b/g,
+        // CBU: 22 dígitos (Zero-Lookbehind)
+        CBU: /(^|\D)(\d{22})(?!\d)/g,
         // Email estándar
         EMAIL: /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b/g,
-        // Teléfonos AR: +54 / 9 / 0 troncal, característica con o sin paréntesis, 15 de móvil.
-        // La cola SIEMPRE exige separación estructural: nunca matchea 7-8 dígitos corridos
-        // (si lo hiciera se comería los DNI, que se procesan después).
-        TELEFONO: /(?:\+?\s?54[\s.\-]?)?(?:9[\s.\-]?)?(?:\(\s?0?\d{2,4}\s?\)|\b0?\d{2,4})[\s.\-]?(?:15[\s.\-]?\d{3,4}[\s.\-]?\d{4}|\d{3}[\s.\-]\d{6}|(?:15[\s.\-]?)?\d{3,4}[\s.\-]?\d{4})\b|\b\d{4}[\s.\-]\d{4}\b/g,
-        // Patente (formato viejo ABC123, formato nuevo AB123CD) - se filtran falsos positivos de siglas legales en processCategory()
-        PATENTE: /\b[A-Za-z]{3}[- ]?\d{3}\b|\b[A-Za-z]{2}[- ]?\d{3}[- ]?[A-Za-z]{2}\b/g,
         // Montos: con símbolo, o con la moneda escrita antes o después del número.
-        // Corre ANTES que DNI para que "pesos 1.500.000" no se etiquete como documento.
+        // Corre ANTES que DNI para que "$34.567.890" o "pesos 1.500.000" no se etiqueten como documento.
         MONTO: /(?:\$|ARS|U\$S|USD)\s?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?\b|\b(?:pesos|d[óo]lares|euros)\s+\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{2})?\b|\b\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{2})?\s*(?:pesos|d[óo]lares|euros)\b/gi,
-        // Juzgado/Tribunal/Cámara/Fiscalía + su identificación numérica si la tiene
-        JUZGADO: /\b(?:Juzgado(?:\s+Nacional|\s+Federal|\s+de\s+Paz|\s+en\s+lo\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?|Tribunal(?:\s+Oral)?|C[áa]mara(?:\s+de\s+Apelaciones)?|Fiscal[íi]a)\b(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,3}(?:\s+[Nn]?[°ºroN.]{0,4}\s*\d{1,4})?/g,
-        // DNI: con puntos de mil, o 7-8 dígitos sueltos, EXCEPTO precedidos por un marcador
-        // de expediente/norma. El marcador admite un "Nº"/"nro." intermedio, de modo que
-        // "Expediente Nº 45678901" se ignora pero "DNI Nº 30123456" SÍ se detecta
-        // (el "Nº" solo no es marcador: es justamente lo que antecede a un DNI real).
-        DNI: /\b\d{1,2}(?:\.\d{3}){2}\b|(?<!\b(?:expte\.?|expediente|art\.?|art[íi]culo|fs\.?|fojas|causa|inc\.?|ley|cap\.?|res\.?|dto\.?|acta|folio|matr[íi]cula|cuit|cuil)\s{0,3}(?:n[°ºro]{0,3}\.?)?\s{0,3})\b\d{7,8}\b(?!\s*(?:pesos|usd|d[óo]lares))/gi
+        // CUIL/CUIT: con o sin prefijo, separadores acotados SEP{0,2}, guiones tipográficos (Zero-Lookbehind)
+        CUIL: new RegExp(`(^|[^0-9A-Za-z])((?:(?:CUIT|CUIL|C\\.?U\\.?I\\.?[TL]\\.?)\\s*(?:N[°º]?\\.?|Nro\\.?)?\\s*[:#]?\\s*)?)(20|23|24|27|30|33|34)${SEP_BOUNDED}(\\d{8})${SEP_BOUNDED}(\\d)(?![0-9A-Za-z])`, 'gi'),
+        // DNI: con puntos de mil, o con palabra clave (Zero-Lookbehind, protegido de montos con decimales)
+        DNI_PUNTOS: /(^|[^0-9A-Za-z\-])(\d{1,2}\.\d{3}\.\d{3})(?!\s*,\d{2})(?![0-9A-Za-z\-])/g,
+        DNI_PALABRA: /(^|[^0-9A-Za-z\-])((?:D\.?N\.?I\.?|documento|D\.?N\.?I\.?\s*N[°ºo]?|L\.?[CE]\.?)[\s\u00A0]*(?:n[°ºro.]*[\s\u00A0]*)?)(\d{7,8}|\d{1,2}[\s\u00A0]\d{3}[\s\u00A0]\d{3})(?!\s*,\d{2})(?![0-9A-Za-z\-])/gi,
+        // Teléfonos AR: +54 / 9 / 0 troncal, característica con o sin paréntesis, 15 de móvil, ENACOM
+        TELEFONO: /(?:\+?\s?54[\s.\-]?)?(?:9[\s.\-]?)?(?:\(\s?0?(?:11|[23]\d{2,3})\s?\)|\b0?(?:11|[23]\d{2,3}))[\s.\-]?(?:15[\s.\-]?\d{3,4}[\s.\-]?\d{4}|\d{3}[\s.\-]\d{6}|(?:15[\s.\-]?)?\d{3,4}[\s.\-]?\d{4})\b|\b\d{4}[\s.\-]\d{4}\b/g,
+        // Patente (formato viejo ABC123, formato nuevo AB123CD) - se filtran falsos positivos de siglas legales
+        PATENTE: /\b[A-Za-z]{3}[- ]?\d{3}\b|\b[A-Za-z]{2}[- ]?\d{3}[- ]?[A-Za-z]{2}\b/g,
+        // Juzgado/Tribunal/Cámara/Fiscalía + su identificación numérica
+        JUZGADO: /\b(?:Juzgado(?:\s+Nacional|\s+Federal|\s+de\s+Paz|\s+en\s+lo\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?|Tribunal(?:\s+Oral)?|C[áa]mara(?:\s+de\s+Apelaciones)?|Fiscal[íi]a)\b(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+){0,3}(?:\s+[Nn]?[°ºroN.]{0,4}\s*\d{1,4})?/g
     };
 
     let mappings = {};       // dedupKey -> { tag, original, category }
@@ -439,10 +443,11 @@
     /** Registra un valor bajo una categoría y devuelve su token. Preserva la capitalización ORIGINAL para la restitución. */
     function getReplacement(category, originalValue) {
         const clean = originalValue.trim();
-        const dedupKey = `${category}::${clean.toLowerCase()}`;
+        const cleanCat = category.startsWith('DNI_') ? 'DNI' : category;
+        const dedupKey = `${cleanCat}::${clean.toLowerCase()}`;
         if (!(dedupKey in mappings)) {
-            entityCounters[category] = (entityCounters[category] || 0) + 1;
-            mappings[dedupKey] = { tag: `[${category}_${entityCounters[category]}]`, original: clean, category };
+            entityCounters[cleanCat] = (entityCounters[cleanCat] || 0) + 1;
+            mappings[dedupKey] = { tag: `[${cleanCat}_${entityCounters[cleanCat]}]`, original: clean, category: cleanCat };
         }
         return mappings[dedupKey].tag;
     }
@@ -462,14 +467,46 @@
     }
 
     function processCategory(text, category, regex) {
+        let result = text;
+        if (category === 'CUIL') {
+            regex.lastIndex = 0;
+            return result.replace(regex, (fullMatch, leading, label, type, mid, last) => {
+                const originalCuit = fullMatch.slice(leading.length + (label ? label.length : 0));
+                const tag = getReplacement('CUIL', originalCuit.trim());
+                return `${leading}${label || ''}${tag}`;
+            });
+        }
+        if (category === 'DNI_PUNTOS') {
+            regex.lastIndex = 0;
+            return result.replace(regex, (match, leading, digitsGroup) => {
+                if (match.includes('[CUIL_') || match.includes('[MONTO_')) return match;
+                const tag = getReplacement('DNI', digitsGroup.trim());
+                return `${leading}${tag}`;
+            });
+        }
+        if (category === 'DNI_PALABRA') {
+            regex.lastIndex = 0;
+            return result.replace(regex, (match, leading, label, digitsGroup) => {
+                if (match.includes('[CUIL_') || match.includes('[MONTO_')) return match;
+                const norm = digitsGroup.replace(/[Oo]/g, '0').replace(/\D/g, '');
+                if (norm.length >= 7 && norm.length <= 8) {
+                    const tag = getReplacement('DNI', digitsGroup.trim());
+                    return `${leading}${label || ''}${tag}`;
+                }
+                return match;
+            });
+        }
+        if (category === 'CBU') {
+            regex.lastIndex = 0;
+            return result.replace(regex, (match, leading, digits) => {
+                const tag = getReplacement('CBU', digits);
+                return `${leading}${tag}`;
+            });
+        }
+
         const matches = text.match(regex) || [];
         const uniqueMatches = Array.from(new Set(matches));
-        let result = text;
         uniqueMatches.forEach(match => {
-            if (category === 'DNI') {
-                const digits = match.replace(/\./g, '');
-                if (digits.length !== 7 && digits.length !== 8) return;
-            }
             if (category === 'PATENTE') {
                 const prefix = match.slice(0, 3).replace(/[^A-Za-z]/g, '').toUpperCase();
                 if (PATENTE_BLOCKLIST.has(prefix)) return;
@@ -709,18 +746,24 @@
     // ============================================================
 
     if (window.pdfjsLib) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs-3.11.174/pdf.worker.min.js';
     }
 
     async function extractTextFromPDF(arrayBuffer) {
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pdf = await pdfjsLib.getDocument({
+            data: new Uint8Array(arrayBuffer),
+            cMapUrl: '/vendor/pdfjs-3.11.174/cmaps/',
+            cMapPacked: true,
+            standardFontDataUrl: '/vendor/pdfjs-3.11.174/standard_fonts/'
+        }).promise;
+
         let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
             fullText += textContent.items.map(item => item.str).join(' ') + '\n';
         }
-        return fullText;
+        return { text: fullText.trim(), numPages: pdf.numPages };
     }
 
     document.getElementById('fileInput').addEventListener('change', async (e) => {
@@ -729,23 +772,50 @@
         const status = document.getElementById('fileStatus');
         const sourceText = document.getElementById('sourceText');
 
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+        if (file.size > MAX_FILE_SIZE) {
+            alert('El archivo supera el límite máximo permitido de 50 MB.');
+            e.target.value = '';
+            return;
+        }
+
+        const fileNameLower = file.name.toLowerCase();
+
         try {
-            if (file.name.endsWith('.docx')) {
+            if (fileNameLower.endsWith('.pdf')) {
+                status.textContent = 'Extrayendo texto del PDF (memoria local)...';
+                const arrayBuffer = await file.arrayBuffer();
+                const { text, numPages } = await extractTextFromPDF(arrayBuffer);
+                if (!text || text.trim().length < 20) {
+                    alert(`Aviso: El archivo PDF "${file.name}" (${numPages} página${numPages > 1 ? 's' : ''}) parece ser un documento escaneado o sin capa de texto seleccionable.\n\nPara anonimizarlo, aplicale OCR local y privado en tu equipo (ej. Stirling-PDF local o Tesseract) antes de procesarlo.`);
+                }
+                sourceText.value = text;
+            } else if (fileNameLower.endsWith('.docx')) {
                 status.textContent = 'Extrayendo texto del .docx...';
                 const arrayBuffer = await file.arrayBuffer();
                 const res = await mammoth.extractRawText({ arrayBuffer });
                 sourceText.value = res.value;
-            } else if (file.name.endsWith('.pdf')) {
-                status.textContent = 'Extrayendo texto del PDF (puede tardar según el tamaño)...';
-                const arrayBuffer = await file.arrayBuffer();
-                sourceText.value = await extractTextFromPDF(arrayBuffer);
-            } else {
+            } else if (fileNameLower.endsWith('.txt')) {
                 sourceText.value = await file.text();
+            } else if (fileNameLower.endsWith('.doc') || fileNameLower.endsWith('.rtf')) {
+                alert(`El formato de "${file.name}" (.doc/.rtf binario antiguo) no es compatible directamente en el navegador.\n\nPor favor, abrí el archivo en Word o LibreOffice y guardalo como .docx o .pdf antes de subirlo.`);
+                status.textContent = 'Formato no soportado directamente. Guardalo como .docx o .pdf';
+                return;
+            } else {
+                alert(`Formato no soportado: "${file.name}".\n\nFormatos admitidos: .pdf, .docx, .txt.`);
+                status.textContent = 'Formato no soportado';
+                return;
             }
             status.textContent = `Listo: ${file.name} (${sourceText.value.length} caracteres extraídos)`;
         } catch (err) {
             status.textContent = 'Mammoth.js & PDF.js extraen el texto directamente en tu memoria RAM local';
-            alert('Error al extraer el archivo: ' + err.message);
+            if (err.name === 'PasswordException') {
+                alert(`El archivo PDF "${file.name}" está protegido con contraseña. Desbloquealo antes de procesarlo.`);
+            } else {
+                alert('Error al extraer el archivo: ' + err.message);
+            }
+        } finally {
+            e.target.value = '';
         }
     });
 

@@ -1,0 +1,8 @@
+# OFFLINE / ZERO-KNOWLEDGE VENDOR VERIFICATION CHECKSUMS (SHA256)
+# Mozilla PDF.js v3.11.174 (Legacy Build) & Mammoth.js v1.6.0
+# Generated: 2026-09-14T03:17:12.185Z
+
+978fd1b2d134a98e98966186a97777bebf87d8e770dadab1ece3687e21a5aa6c  pdfjs-3.11.174/pdf.min.js
+38cde5311957b86bc3669f93e7d2566de333a90055ed6635bef60d9bf00e96f2  pdfjs-3.11.174/pdf.worker.min.js
+596ef52239e52d8ee3cee10b2ee4a72596abf900d0e4f468593f956e9f1809b0  mammoth-1.6.0/mammoth.browser.min.js
+5ceaaba22d75b58e04150311f596306562a3e595e27ed4b1dfa451b82dda9e50  fontawesome/all.min.css
